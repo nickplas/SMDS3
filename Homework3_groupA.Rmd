@@ -1,0 +1,49 @@
+---
+title: "Homework - Group A"
+author: "Milton Nicolas Plasencia Palacios, Azad Sadr, Gaia Saveri, Alessandro Scardoni"
+date: "Spring 2020"
+output: 
+  html_document:
+    toc: yes
+  beamer_presentation:
+    highlight: tango
+  include: null
+  ioslides_presentation:
+    highlight: tango
+  pdf_document:
+    highlight: tango
+    keep_tex: yes
+    toc: yes
+  slide_level: 2
+  slidy_presentation:
+    fig.height: 3
+    fig.width: 4
+    highlight: tango
+header-includes:
+- \usepackage{color}
+- \definecolor{Purple}{HTML}{911146}
+- \definecolor{Orange}{HTML}{CF4A30}
+- \setbeamercolor{alerted text}{fg=Orange}
+- \setbeamercolor{frametitle}{bg=Purple}
+institute: University of Trieste
+graphics: yes
+subtitle: Simulation, examples and exercises
+fontsize: 10pt
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+## Exercise 1
+
+
+```{r Lab_ex1, echo=TRUE}
+"R code"
+```
+
+## Exercise 2
+```{r Lab_ex2, echo=TRUE}
+"Example 2"
+```
+
