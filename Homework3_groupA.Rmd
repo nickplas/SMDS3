@@ -35,19 +35,98 @@ fontsize: 10pt
 knitr::opts_chunk$set(echo = TRUE)
 ```
 
-# Lab exercises
+# Exercises from LEC
 
 ## Exercise 1
+**Compute the bootstrap-based confidence interval for the `score` dataset using the studentized method.**
 
+```{r Lec_ex1, echo=TRUE}
+score <-read.table("student_score.txt", header = TRUE)
 
-```{r Lab_ex1, echo=TRUE}
-"R code"
+#function that return the eigenratio statistic
+psi_fun <-function(data) {
+        eig <-eigen(cor(data))$values
+        return(max(eig)/ sum(eig))}
+
+#observed value
+psi_obs <-psi_fun(score)
+
+#Computing standard error
+n <-nrow(score); B <- 10^4
+s_vect <-rep(0, B)
+SE_jack <-rep(0,B)
+s1_vect<-rep(0,n)
+for(i in 1:B){
+  ind <- sample(1:n, n, replace = TRUE)
+  s_vect[i] <- psi_fun(score[ind,])
+  for(j in 1:n) s1_vect[j] <- psi_fun(score[ind,][-j,])
+  SE_jack[i] <- sqrt(((n - 1)/n) * sum((s1_vect - mean(s1_vect))^2))
+}
+SE_boot <-sd(s_vect)
+
+z<- (s_vect - psi_obs)/SE_jack
+
+#Wald interval
+wald_ci <- psi_obs + c(-1, 1)*1.96*SE_boot 
+wald_ci
+```
+
+```{r Lec_ex1.1, echo=TRUE}
+
+#Percentile method
+perc_ci <-quantile(s_vect, prob=c(0.025, 0.975))
+attr(perc_ci, "names") <- NULL
+perc_ci
+
+```
+
+```{r Lec_ex1.2, echo=TRUE}
+#Confidence Interval
+studentized_ci <- psi_obs - SE_boot*quantile(z, prob=c(0.975, 0.025))
+studentized_ci
+
+```
+As we can see the Confidence Interval of the studentized method is wider than the other ones.
+
+```{r Lec_ex1.3, echo=TRUE}
+library(MASS)
+hist.scott(s_vect, main = "")
+abline(v = psi_obs, col = 2)
+abline(v = studentized_ci, col = 4)
 ```
 
 ## Exercise 2
-```{r Lab_ex2, echo=TRUE}
-"Example 2"
+
+**Compute bootstrap-based confidence intervals for the `score` dataset using the `boot` package.**
+
+```{r Lec_ex2, echo=TRUE}
+library(boot)
+score <-read.table("student_score.txt", header = TRUE)
+
+boot1_fun <-function(data, i) {
+  a<- data[i,]
+  eig <- eigen(cor(a))$values
+  return(max(eig)/ sum(eig))
+}
+boot1 <- boot(data = score, statistic = boot1_fun, R = 100)
+boot_psi <- boot(data = score, statistic = boot1_fun, R = 10^4)
+boot.ci(boot_psi, type = "perc")
+
 ```
+
+```{r Lex_ex2.1, echo=TRUE}
+psi_fun_var <-function(data, i){
+    a<- data[i,]
+    eig <- eigen(cor(a))$values
+    boot1 <- boot(data = score, statistic = boot1_fun, R= 50 )
+    return(c(max(eig)/ sum(eig), var(boot1$t)))
+}
+
+results <- boot(data = score, statistic = psi_fun_var, R=100)
+boot.ci(results, type = "stud" )
+```
+
+# Lab exercises
 
 ## Exercise 3
 
