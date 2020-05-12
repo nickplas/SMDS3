@@ -407,7 +407,7 @@ The function `mcmc_hist` plots the marginal posterior distribution of the parame
 
 **Now, compute your posterior as $\pi (\lambda|y) \propto L(\lambda;y)\pi(\lambda)$ for the selected prior. If your first choice was correct, you will be able to compute it analitically.**
 
-I decide to use the Gamma distribution as a prior because is the conjugate prior of the Poisson distribution. Moreover we can observe that:
+I decide to use the Gamma distribution as a prior because it is defined in the interval $[0, +\infty]$an it is also the conjugate prior of the Poisson distribution. Moreover we can observe that:
 
 1) The beta distribution is excluded because its support is $[0,1]$ so it can not be used to assess the average lengh of a phone call, which can take every value in $\mathbb{R}^+$.
 
@@ -419,11 +419,13 @@ and so:
 
 $$\pi(\lambda|y) \propto \lambda^{\sum y_i +\alpha -1 } e^{-(n+\beta)\lambda}$$
 
-which is a Gamma distribution. So:
+which is proportional to a Gamma distribution. So:
 
 $$\pi(\lambda|y) \sim Gamma \left( \sum_{i=1}^{15} y_i + \alpha, 15+\beta \right) $$ 
 
 with $\alpha = 4$ and $\beta = 2$.
+
+
 
 ## Exercise 9
 
