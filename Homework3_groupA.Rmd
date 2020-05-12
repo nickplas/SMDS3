@@ -394,3 +394,36 @@ mcmc_hist(posterior, pars=c("theta"), binwidth=0.05)
 ```
 
 The function `mcmc_hist` plots the marginal posterior distribution of the parameter of interest, namely $\theta$, combining all the chains.
+
+## Ecercise 7
+
+**Suppose you receive n=15 phone calls in a day, and you want to build a model to assess their average length. Your likelihood for each call length is $ y_i \sim Po(\lambda) $. Now, you have to choose the prior $\pi (\lambda) $. Please, tell which of these priors is adequate to describe the problem, and provide a short motivation for each of them:**
+
+**1) $\pi (\lambda)$ = BETA(4,2) **
+
+**2) $\pi (\lambda)$ = $N$(1,2) **
+
+**3) $\pi (\lambda)$ = Gamma(4,2) **
+
+**Now, compute your posterior as $\pi (\lambda|y) \propto L(\lambda;y)\pi(\lambda)$ for the selected prior. If your first choice was correct, you will be able to compute it analitically.**
+
+I decide to use the Gamma distribution as a prior because is the conjugate prior of the Poisson distribution. Moreover we can observe that:
+
+1) The beta distribution is excluded because its support is $[0,1]$ so it can not be used to assess the average lengh of a phone call, which can take every value in $\mathbb{R}^+$.
+
+2) The normal distribution is excluded because it can take also negative values, which is not consistent with our problem.
+
+Analitical computation:
+$$ \pi(\lambda|y) \propto L(\lambda;y)\pi(\lambda) = \left[ \prod_{i=1}^{15} \frac{\lambda ^{y_i} e^{-\lambda}}{y_i!} \right] \left[\frac{\beta^\alpha}{\Gamma(\alpha)} \lambda^{\alpha - 1} e^{-\beta\lambda}\right] $$
+and so:
+
+$$\pi(\lambda|y) \propto \lambda^{\sum y_i +\alpha -1 } e^{-(n+\beta)\lambda}$$
+
+which is a Gamma distribution. So:
+
+$$\pi(\lambda|y) \sim Gamma \left( \sum_{i=1}^{15} y_i + \alpha, 15+\beta \right) $$ 
+
+with $\alpha = 4$ and $\beta = 2$.
+
+
+
