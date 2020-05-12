@@ -407,13 +407,15 @@ The function `mcmc_hist` plots the marginal posterior distribution of the parame
 
 **Now, compute your posterior as $\pi (\lambda|y) \propto L(\lambda;y)\pi(\lambda)$ for the selected prior. If your first choice was correct, you will be able to compute it analitically.**
 
+---
+
 I decide to use the Gamma distribution as a prior because it is defined in the interval $[0, +\infty]$an it is also the conjugate prior of the Poisson distribution. Moreover we can observe that:
 
 1) The beta distribution is excluded because its support is $[0,1]$ so it can not be used to assess the average lengh of a phone call, which can take every value in $\mathbb{R}^+$.
 
 2) The normal distribution is excluded because it can take also negative values, which is not consistent with our problem.
 
-Analitical computation:
+Analytical computation:
 $$ \pi(\lambda|y) \propto L(\lambda;y)\pi(\lambda) = \left[ \prod_{i=1}^{15} \frac{\lambda ^{y_i} e^{-\lambda}}{y_i!} \right] \left[\frac{\beta^\alpha}{\Gamma(\alpha)} \lambda^{\alpha - 1} e^{-\beta\lambda}\right] $$
 and so:
 
@@ -428,6 +430,10 @@ with $\alpha = 4$ and $\beta = 2$.
 
 
 ## Exercise 9
+
+**Reproduce the first plot above for the soccer goals, but this time by replacing Prior 1 with a $Gamma(2,4)$. Then, compute the final Bayes factor matrix (`BF_matrix`) with this new prior and the other ones unchanged, and comment. Is still Prior 2 favorable over all the others?**
+
+---
 
 ```{r Lab_ex9, include=TRUE}
 knitr::opts_chunk$set
@@ -540,3 +546,88 @@ round_bf
 
 As we can see by the table, also after having changed the prior1, the prior2 remains the favourite over all. More, the bayes factor of p2/p1 has grown from 1.2 to 6.3, indicating that the new prior1~Gamma(2,4), that assume then a lambda of 1/2 is probably a worst assumption compared to the previous distribution. We could see this also by the plot1, when we see that the new distribution assigned to the prior1 pushes her away from the likelihood if compared with the plot when prior1~Gamma(4.57,1.43).
 
+## Exercise 10
+
+**Let $y = (1, 0, 0, 1, 0, 0, 0, 0, 0, 1, 0, 0, 1, 0)$ collect the result of tossing $n=14$ times an unfair coin, where 1 denotes *heads* and 0 *tails*, and $p=Prob(y_i=1)$.**
+
+* **Looking at the Stan code for the other models, write a short Stan Beta-Binomial model, where $p$ has a $Beta(a,b)$ prior with $a=3$, $b=3$;**
+
+* **extract the posterior distribution with the function `extract`;**
+
+* **produce some plots with the `bayesplot` package and comment.**
+
+* **compute analitically the posterior distribution and compare it with the Stan distribution.**
+
+___
+
+```{r Lab_ex10, echo=TRUE, warning=FALSE}
+library(rstan)
+library(bayesplot)
+y<-c(1, 0, 0, 1, 0, 0, 0, 0, 0, 1, 0, 0, 1, 0)
+n<-length(y)
+heads<-sum(y)
+tails<-n-heads
+
+#parameters of the beta
+a<-3; b<-3
+
+#beta-binomial stan model
+model<-"
+data{
+  int N;
+  int y;
+  real<lower=0> alpha;
+  real<lower=0> beta;
+}
+
+parameters{
+  real p;
+}
+
+model{
+  target+=binomial_lpmf(y|N, p); 
+  target+=beta_lpdf(p|alpha, beta);
+}
+"
+
+#launch Stan model
+data<-list(N=n, y=heads, alpha=a, beta=b)
+fit<-stan(model_code = model, data = data, chains = 4, iter = 2000)
+
+#extract Stan output
+sim<-extract(fit)
+
+posterior_biv<-as.matrix(fit)
+
+mcmc_intervals(posterior_biv, pars=c("p"))
+
+plot_title<-ggtitle("Posterior distributions", "with medians and 80% intervals")
+mcmc_areas(posterior_biv, pars = c("p"), prob=0.8) + plot_title
+
+```
+
+We have produced the plots of the posterior interval and the area of the parameter of the Beta-Binomial model, using functions belonging to the `bayesplot` package. It is possible to observe that the median of such parameter is around 0.35, and that its variance is not remarkably large.
+
+In order to analitically compute the posterior, we need:
+
+ * the likelihood, which is a Binomial distribution: $p(y|p) \sim Bin(heads|p, heads+tails)$;
+ * the prior, which is a Beta distribution: $p(p) = Beta(p|a,b)$.
+ 
+So the posterior will be proportional to the product of a Beta and a Binomial, namely 
+$$p(p|y) \propto Bin(heads|p, heads+tails) \cdot Beta(p|a,b) \propto Beta(p|heads+a, tails+b) = Beta(7, 13)$$, since the Beta is the conjugate prior to the Binomial distribution.
+
+```{r Lab_ex10_cont, echo=TRUE}
+#prior
+curve(dbeta(x,a,b), xlim=c(-0.5,1.5), ylim=c(0,4), col="red", lty=1, ylab="density")
+
+#Stan posterior
+lines(density(sim$p), col="black", lty=2)
+
+#true posterior
+curve(dbeta(x,7,13), lty=3, col="blue", add=T)
+
+legend(1,2,c("Prior", "Stan Posterior", "True Posterior"), c("red", "black", "blue"), lty=c(1,2,3), cex=0.5)
+
+```
+
+We can observe that the Stan posterior is very close to the true posterior.
