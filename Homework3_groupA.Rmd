@@ -427,7 +427,46 @@ $$\pi(\lambda|y) \sim Gamma \left( \sum_{i=1}^{15} y_i + \alpha, 15+\beta \right
 
 with $\alpha = 4$ and $\beta = 2$.
 
+## Exercise 8
 
+**Which prior are you now assuming for your parameter $\sigma$? Reproduce the same plots as above and briefly comment.**
+
+We are assuming that the parameter $\sigma \sim \text{Unif}(0.1, 10)$.
+
+```{r Lab_ex8, include=TRUE}
+library(rstan)
+library("bayesplot")
+library("rstanarm")
+library("ggplot2")
+
+#variables
+n<-10
+theta_sample <- 2
+sigma2 <- 2
+
+y <- rnorm(n,theta_sample, sqrt(sigma2))
+data3<- list(N=n, y=y, a=-10, b=10)
+fit3 <- stan(file="biparametric.stan", data = data3, chains = 4, iter=2000,
+             refresh=-1)
+
+sim3 <- extract(fit3)
+posterior_biv <- as.matrix(fit3)
+
+theta_est <- mean(sim3$theta)
+sigma_est <- mean(sim3$sigma)
+c(theta_est, sigma_est)
+traceplot(fit3, pars=c("theta", "sigma"))
+
+plot_title <- ggtitle("Posterior distributions",
+                      "with medians and 80% intervals")
+
+mcmc_areas(posterior_biv, 
+           pars = c("theta","sigma"), 
+           prob = 0.8) + plot_title
+
+```
+
+By looking at these plots, and also at the lab ones, we can notice that there is not a significant difference between them, which can suggest that both priors (uniform and half cauchy) are non-informative/weakly-informative for the posterior distribution. 
 
 ## Exercise 9
 
