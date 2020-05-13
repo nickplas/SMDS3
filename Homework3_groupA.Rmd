@@ -147,7 +147,7 @@ log_lik_weibull <- function( data, param) {
 }
 ```
 
-parameters estimates will be expresseed in the log-scale usin `theta` function, and we need to re-express them in the original scale using `omega` function.
+parameters estimates will be expressed in the log-scale using `theta` function, and we need to re-express them in the original scale using `omega` function.
 
 ```{r, warning=FALSE}
 omega <- function(theta) log(theta)
@@ -158,7 +158,7 @@ weib.y.nlm
 ```
 
 estimated variance of the MLE are the diagonal elements of the observed Fisher information matrix.
-so variance for the estimator $\hat w = (\log(\hat{\gamma}),\log(\hat{\beta}))$ usin `nlm`are:
+so variance for the estimator $\hat w = (\log(\hat{\gamma}),\log(\hat{\beta}))$ using `nlm`are:
 
 ```{r, warning=FALSE}
 diag(solve(weib.y.nlm$hessian))
@@ -395,7 +395,7 @@ mcmc_hist(posterior, pars=c("theta"), binwidth=0.05)
 
 The function `mcmc_hist` plots the marginal posterior distribution of the parameter of interest, namely $\theta$, combining all the chains.
 
-## Ecercise 7
+## Exercise 7
 
 **Suppose you receive n=15 phone calls in a day, and you want to build a model to assess their average length. Your likelihood for each call length is $ y_i \sim Po(\lambda) $. Now, you have to choose the prior $\pi (\lambda) $. Please, tell which of these priors is adequate to describe the problem, and provide a short motivation for each of them:**
 
